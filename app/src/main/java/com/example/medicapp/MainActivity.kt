@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.example.medicapp.ui.theme.MedicAppTheme
 
@@ -18,9 +19,28 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SplashScreen()
+                    AppNavigation()
                 }
             }
         }
+    }
+}
+
+@Composable
+fun AppNavigation() {
+    var showRegistration by remember { mutableStateOf(false) }
+
+    if (!showRegistration) {
+        SplashScreen(
+            onLoginClick = {
+                showRegistration = true
+            }
+        )
+    } else {
+        RegistrationScreen(
+            onBackClick = {
+                showRegistration = false
+            }
+        )
     }
 }

@@ -1,14 +1,11 @@
 package com.example.medicapp
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +17,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun SplashScreen() {
+fun SplashScreen(
+    onLoginClick: () -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -33,10 +32,9 @@ fun SplashScreen() {
         ) {
             Text(
                 text = "⚕️",
-                fontSize = 80.sp
+                fontSize = 80.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Смартлаб +",
@@ -46,6 +44,28 @@ fun SplashScreen() {
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(60.dp))
+
+            Button(
+                onClick = onLoginClick,
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(30.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color(0xFF4CAF50)
+                )
+            ) {
+                Text(
+                    text = "ВОЙТИ",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 2.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
