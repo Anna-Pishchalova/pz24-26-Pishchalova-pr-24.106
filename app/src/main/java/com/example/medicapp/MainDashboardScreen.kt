@@ -1,3 +1,4 @@
+// MainDashboardScreen.kt
 package com.example.medicapp
 
 import androidx.compose.foundation.background
@@ -19,11 +20,10 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import kotlinx.coroutines.launch
-import kotlin.math.absoluteValue
-import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -32,13 +32,12 @@ fun MainDashboardScreen(
     patientCard: Map<String, String>? = null,
     onLogout: () -> Unit = {}
 ) {
-    // Состояние для пагинации (3 страницы)
+    // Состояние для пагинации (5 страниц)
     val pagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = { 3 } // 3 страницы
+        pageCount = { 5 } // 5 страниц: Анализы, Уведомления, Мониторинг, Результаты, Настройки
     )
 
-    // Для управления переключением по точкам
     val coroutineScope = rememberCoroutineScope()
 
     Column(
@@ -46,7 +45,7 @@ fun MainDashboardScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Верхняя панель с временем и кнопкой "Пропустить"
+        // Верхняя панель с временем и кнопкой "Выйти"
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -78,15 +77,19 @@ fun MainDashboardScreen(
         // HorizontalPager для свайпа между страницами
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            userScrollEnabled = true,
+            flingBehavior = PagerDefaults.flingBehavior(state = pagerState)
         ) { page ->
             when (page) {
                 0 -> DashboardPage1(
                     userEmail = userEmail,
                     patientCard = patientCard
                 )
-                1 -> DashboardPage2()
-                2 -> DashboardPage3()
+                1 -> DashboardPage2() // Уведомления
+                2 -> DashboardPage3() // Мониторинг (НОВАЯ СТРАНИЦА)
+                3 -> DashboardPage4() // Результаты
+                4 -> DashboardPage5() // Настройки
             }
         }
 
@@ -131,7 +134,6 @@ fun DashboardPage1(
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Приветствие
         Text(
             text = "👋 Здравствуйте!",
             fontSize = 24.sp,
@@ -183,7 +185,6 @@ fun DashboardPage1(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Кнопка "Заказать анализы"
                 Button(
                     onClick = { /* Переход на заказ анализов */ },
                     modifier = Modifier.fillMaxWidth(),
@@ -243,9 +244,366 @@ fun DashboardPage1(
     }
 }
 
-// ===== Страница 2: Результаты =====
+// ===== Страница 2: Уведомления =====
 @Composable
 fun DashboardPage2() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "🔔 Уведомления",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 40.dp, bottom = 8.dp)
+        )
+
+        Text(
+            text = "Вы быстро узнаете о результатах",
+            fontSize = 16.sp,
+            color = Color.Gray,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp)
+        )
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFFF5F5F5)
+            ),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                NotificationItem(
+                    icon = "📊",
+                    title = "Результаты анализов готовы",
+                    description = "Ваши результаты анализов от 15.06.2026 готовы",
+                    time = "2 часа назад",
+                    isRead = false
+                )
+
+                Divider()
+
+                NotificationItem(
+                    icon = "📅",
+                    title = "Напоминание о приеме",
+                    description = "Завтра в 10:00 прием у терапевта",
+                    time = "1 день назад",
+                    isRead = true
+                )
+
+                Divider()
+
+                NotificationItem(
+                    icon = "💊",
+                    title = "Пора принять лекарство",
+                    description = "Не забудьте принять назначенные лекарства",
+                    time = "2 дня назад",
+                    isRead = true
+                )
+
+                Divider()
+
+                NotificationItem(
+                    icon = "🏥",
+                    title = "Запись к врачу подтверждена",
+                    description = "Ваша запись к кардиологу подтверждена",
+                    time = "3 дня назад",
+                    isRead = true
+                )
+            }
+        }
+
+        TextButton(
+            onClick = { /* Очистка уведомлений */ },
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
+            Text(
+                text = "Очистить все уведомления",
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+// Компонент для одного уведомления
+@Composable
+fun NotificationItem(
+    icon: String,
+    title: String,
+    description: String,
+    time: String,
+    isRead: Boolean = false
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { /* Открыть уведомление */ }
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.Top
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(
+                    color = if (isRead) Color(0xFFF5F5F5) else Color(0xFFE8F5E9),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = icon, fontSize = 20.sp)
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 14.sp,
+                    fontWeight = if (isRead) FontWeight.Normal else FontWeight.Bold,
+                    color = if (isRead) Color.Gray else Color.Black
+                )
+                Text(
+                    text = time,
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = description,
+                fontSize = 13.sp,
+                color = if (isRead) Color.Gray else Color(0xFF555555),
+                maxLines = 2
+            )
+        }
+
+        if (!isRead) {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .background(
+                        color = Color(0xFF4CAF50),
+                        shape = CircleShape
+                    )
+            )
+        }
+    }
+}
+
+// ===== Страница 3: Мониторинг (НОВАЯ СТРАНИЦА) =====
+@Composable
+fun DashboardPage3() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Заголовок
+        Text(
+            text = "📊 Мониторинг",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 40.dp, bottom = 8.dp)
+        )
+
+        // Подзаголовок
+        Text(
+            text = "Наши врачи всегда наблюдают за вашими показателями здоровья",
+            fontSize = 16.sp,
+            color = Color.Gray,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp),
+            textAlign = TextAlign.Center
+        )
+
+        // Карточка с показателями здоровья
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFFE3F2FD)
+            ),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "❤️ Показатели здоровья",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1565C0)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Показатель 1: Давление
+                HealthMetricItem(
+                    icon = "💓",
+                    label = "Артериальное давление",
+                    value = "120/80",
+                    status = "Норма",
+                    statusColor = Color(0xFF4CAF50)
+                )
+
+                Divider()
+
+                // Показатель 2: Пульс
+                HealthMetricItem(
+                    icon = "❤️",
+                    label = "Пульс",
+                    value = "72 уд/мин",
+                    status = "Норма",
+                    statusColor = Color(0xFF4CAF50)
+                )
+
+                Divider()
+
+                // Показатель 3: Вес
+                HealthMetricItem(
+                    icon = "⚖️",
+                    label = "Вес",
+                    value = "75 кг",
+                    status = "В норме",
+                    statusColor = Color(0xFFFF9800)
+                )
+
+                Divider()
+
+                // Показатель 4: Глюкоза
+                HealthMetricItem(
+                    icon = "🩸",
+                    label = "Уровень глюкозы",
+                    value = "5.2 ммоль/л",
+                    status = "Норма",
+                    statusColor = Color(0xFF4CAF50)
+                )
+            }
+        }
+
+        // Кнопка "Обновить показатели"
+        Button(
+            onClick = { /* Обновление данных */ },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF4CAF50)
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(
+                text = "Обновить показатели",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Текст о последнем обновлении
+        Text(
+            text = "Последнее обновление: сегодня, 10:30",
+            fontSize = 12.sp,
+            color = Color.Gray
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+// Компонент для показателя здоровья
+@Composable
+fun HealthMetricItem(
+    icon: String,
+    label: String,
+    value: String,
+    status: String,
+    statusColor: Color
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Text(text = icon, fontSize = 24.sp)
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = label,
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    text = value,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+        }
+
+        // Статус
+        Box(
+            modifier = Modifier
+                .background(
+                    color = statusColor.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(horizontal = 12.dp, vertical = 4.dp)
+        ) {
+            Text(
+                text = status,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = statusColor
+            )
+        }
+    }
+}
+
+// ===== Страница 4: Результаты =====
+@Composable
+fun DashboardPage4() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -284,7 +642,6 @@ fun DashboardPage2() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Заглушка для списка результатов
                 listOf(
                     "Общий анализ крови" to "12.06.2026",
                     "Биохимия" to "10.06.2026",
@@ -306,9 +663,9 @@ fun DashboardPage2() {
     }
 }
 
-// ===== Страница 3: Настройки =====
+// ===== Страница 5: Настройки =====
 @Composable
-fun DashboardPage3() {
+fun DashboardPage5() {
     Column(
         modifier = Modifier
             .fillMaxSize()
