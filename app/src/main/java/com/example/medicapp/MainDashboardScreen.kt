@@ -1,14 +1,17 @@
-// MainDashboardScreen.kt
 package com.example.medicapp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -16,14 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.ui.ExperimentalComposeUiApi
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.foundation.pager.PagerDefaults
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -82,169 +79,87 @@ fun MainDashboardScreen(
             flingBehavior = PagerDefaults.flingBehavior(state = pagerState)
         ) { page ->
             when (page) {
-                0 -> DashboardPage1(
-                    userEmail = userEmail,
-                    patientCard = patientCard
+                0 -> AnalyticsScreen(
+                    onAnalysisClick = { analysis ->
+                        // Переход к деталям анализа
+                        println("Выбран анализ: ${analysis.name}")
+                    },
+                    onPromotionClick = { promotion ->
+                        // Переход к акции
+                        println("Выбрана акция: ${promotion.title}")
+                    },
+                    onCategoryClick = { category ->
+                        // Фильтр по категории
+                        println("Выбрана категория: $category")
+                    },
+                    onSearchClick = {
+                        // Поиск анализов
+                        println("Поиск анализов")
+                    },
+                    onBottomNavClick = { item ->
+                        // Обработка нажатия на нижнюю навигацию
+                        when (item) {
+                            "Анализы" -> {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(0)
+                                }
+                            }
+                            "Результаты" -> {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(3)
+                                }
+                            }
+                            "Поддержка" -> {
+                                // Переход на страницу поддержки
+                                println("Переход в поддержку")
+                            }
+                            "Профиль" -> {
+                                // Переход на страницу профиля
+                                println("Переход в профиль")
+                            }
+                        }
+                    }
                 )
                 1 -> DashboardPage2() // Уведомления
-                2 -> DashboardPage3() // Мониторинг (НОВАЯ СТРАНИЦА)
+                2 -> DashboardPage3() // Мониторинг
                 3 -> DashboardPage4() // Результаты
                 4 -> DashboardPage5() // Настройки
             }
         }
 
-        // Индикатор страниц (точки внизу)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 24.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            repeat(pagerState.pageCount) { index ->
-                val isSelected = pagerState.currentPage == index
-                Box(
-                    modifier = Modifier
-                        .size(if (isSelected) 12.dp else 8.dp)
-                        .padding(horizontal = 4.dp)
-                        .background(
-                            color = if (isSelected) Color(0xFF4CAF50) else Color(0xFFE0E0E0),
-                            shape = CircleShape
-                        )
-                        .clickable {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(index)
-                            }
-                        }
-                )
-            }
-        }
-    }
-}
-
-// ===== Страница 1: Анализы =====
-@Composable
-fun DashboardPage1(
-    userEmail: String = "",
-    patientCard: Map<String, String>? = null
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "👋 Здравствуйте!",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp, bottom = 8.dp)
-        )
-
-        Text(
-            text = if (userEmail.isNotEmpty()) userEmail else "Гость",
-            fontSize = 16.sp,
-            color = Color.Gray,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp)
-        )
-
-        // Карточка "Анализы"
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFE8F5E9)
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "🧪 Анализы",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2E7D32)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "Экспресс сбор и получение проб",
-                    fontSize = 14.sp,
-                    color = Color(0xFF2E7D32),
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = { /* Переход на заказ анализов */ },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4CAF50)
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Заказать анализы",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-
-        // Информация о карте пациента (если есть)
-        if (patientCard != null) {
-            Card(
+        // Индикатор страниц (точки внизу) - показываем только если не на странице анализов
+        // (на странице анализов есть своя нижняя навигация)
+        if (pagerState.currentPage != 0) {
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFF5F5F5)
-                ),
-                shape = RoundedCornerShape(16.dp)
+                    .padding(vertical = 24.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "👤 Карта пациента",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4CAF50)
+                repeat(pagerState.pageCount) { index ->
+                    val isSelected = pagerState.currentPage == index
+                    Box(
+                        modifier = Modifier
+                            .size(if (isSelected) 12.dp else 8.dp)
+                            .padding(horizontal = 4.dp)
+                            .background(
+                                color = if (isSelected) Color(0xFF4CAF50) else Color(0xFFE0E0E0),
+                                shape = CircleShape
+                            )
+                            .clickable {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            }
                     )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    patientCard?.let {
-                        Text(
-                            text = "${it["lastName"]} ${it["firstName"]}",
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            text = "📅 ${it["birthDate"]}",
-                            fontSize = 12.sp,
-                            color = Color.Gray
-                        )
-                    }
                 }
             }
         }
-
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
-// ===== Страница 2: Уведомления =====
+// ===== Страница 1: Уведомления =====
 @Composable
 fun DashboardPage2() {
     Column(
@@ -339,7 +254,6 @@ fun DashboardPage2() {
     }
 }
 
-// Компонент для одного уведомления
 @Composable
 fun NotificationItem(
     icon: String,
@@ -414,7 +328,7 @@ fun NotificationItem(
     }
 }
 
-// ===== Страница 3: Мониторинг (НОВАЯ СТРАНИЦА) =====
+// ===== Страница 2: Мониторинг =====
 @Composable
 fun DashboardPage3() {
     Column(
@@ -423,7 +337,6 @@ fun DashboardPage3() {
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Заголовок
         Text(
             text = "📊 Мониторинг",
             fontSize = 24.sp,
@@ -434,7 +347,6 @@ fun DashboardPage3() {
                 .padding(top = 40.dp, bottom = 8.dp)
         )
 
-        // Подзаголовок
         Text(
             text = "Наши врачи всегда наблюдают за вашими показателями здоровья",
             fontSize = 16.sp,
@@ -445,7 +357,6 @@ fun DashboardPage3() {
             textAlign = TextAlign.Center
         )
 
-        // Карточка с показателями здоровья
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -468,7 +379,6 @@ fun DashboardPage3() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Показатель 1: Давление
                 HealthMetricItem(
                     icon = "💓",
                     label = "Артериальное давление",
@@ -479,7 +389,6 @@ fun DashboardPage3() {
 
                 Divider()
 
-                // Показатель 2: Пульс
                 HealthMetricItem(
                     icon = "❤️",
                     label = "Пульс",
@@ -490,7 +399,6 @@ fun DashboardPage3() {
 
                 Divider()
 
-                // Показатель 3: Вес
                 HealthMetricItem(
                     icon = "⚖️",
                     label = "Вес",
@@ -501,7 +409,6 @@ fun DashboardPage3() {
 
                 Divider()
 
-                // Показатель 4: Глюкоза
                 HealthMetricItem(
                     icon = "🩸",
                     label = "Уровень глюкозы",
@@ -512,7 +419,6 @@ fun DashboardPage3() {
             }
         }
 
-        // Кнопка "Обновить показатели"
         Button(
             onClick = { /* Обновление данных */ },
             modifier = Modifier
@@ -532,7 +438,6 @@ fun DashboardPage3() {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Текст о последнем обновлении
         Text(
             text = "Последнее обновление: сегодня, 10:30",
             fontSize = 12.sp,
@@ -543,7 +448,6 @@ fun DashboardPage3() {
     }
 }
 
-// Компонент для показателя здоровья
 @Composable
 fun HealthMetricItem(
     icon: String,
@@ -582,7 +486,6 @@ fun HealthMetricItem(
             }
         }
 
-        // Статус
         Box(
             modifier = Modifier
                 .background(
@@ -601,7 +504,7 @@ fun HealthMetricItem(
     }
 }
 
-// ===== Страница 4: Результаты =====
+// ===== Страница 3: Результаты =====
 @Composable
 fun DashboardPage4() {
     Column(
@@ -663,7 +566,7 @@ fun DashboardPage4() {
     }
 }
 
-// ===== Страница 5: Настройки =====
+// ===== Страница 4: Настройки =====
 @Composable
 fun DashboardPage5() {
     Column(
@@ -706,7 +609,6 @@ fun DashboardPage5() {
     }
 }
 
-// Компонент для пункта настроек
 @Composable
 fun SettingsItem(icon: String, title: String) {
     Row(
