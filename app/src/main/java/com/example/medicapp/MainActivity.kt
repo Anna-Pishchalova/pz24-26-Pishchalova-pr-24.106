@@ -89,7 +89,20 @@ fun AppNavigation() {
                     currentScreen = "dashboard"
                 },
                 onSkip = {
-                    currentScreen = "dashboard" // Пропускаем создание карты
+                    currentScreen = "dashboard"
+                }
+            )
+        }
+
+        "dashboard" -> {
+            MainDashboardScreen(
+                userEmail = userEmail,
+                patientCard = patientCard,
+                onLogout = {
+                    userEmail = ""
+                    userPin = ""
+                    patientCard = null
+                    currentScreen = "splash"
                 }
             )
         }
