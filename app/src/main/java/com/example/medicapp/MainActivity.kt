@@ -1,3 +1,4 @@
+// MainActivity.kt
 package com.example.medicapp
 
 import android.os.Bundle
@@ -32,11 +33,14 @@ fun AppNavigation() {
     var currentScreen by remember { mutableStateOf("splash") }
     var userEmail by remember { mutableStateOf("") }
     var userPin by remember { mutableStateOf("") }
+    var patientCard by remember { mutableStateOf<Map<String, String>?>(null) }
 
     // "splash" - заставка
     // "login" - экран входа
     // "verification" - экран ввода кода
     // "createPin" - экран создания PIN-кода
+    // "createCard" - экран создания карты пациента
+    // "dashboard" - главный экран
 
     when (currentScreen) {
         "splash" -> {
@@ -58,7 +62,7 @@ fun AppNavigation() {
                 email = userEmail,
                 onCodeComplete = { code ->
                     println("Код подтверждения: $code")
-                    currentScreen = "createPin" // Переход на создание PIN
+                    currentScreen = "createPin"
                 },
                 onBackClick = {
                     currentScreen = "login"
@@ -70,11 +74,22 @@ fun AppNavigation() {
                 onPinCreated = { pin ->
                     userPin = pin
                     println("Создан PIN: $pin")
-                    currentScreen = "dashboard" // Переход в главный экран
+                    currentScreen = "createCard" // Переход на создание карты
                 },
                 onSkip = {
-                    // Пропускаем создание PIN
+                    currentScreen = "createCard" // Тоже переходим на создание карты
+                }
+            )
+        }
+        "createCard" -> {
+            CreatePatientCardScreen(
+                onCardCreated = { cardData ->
+                    patientCard = cardData
+                    println("Создана карта: $cardData")
                     currentScreen = "dashboard"
+                },
+                onSkip = {
+                    currentScreen = "dashboard" // Пропускаем создание карты
                 }
             )
         }
